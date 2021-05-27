@@ -29,7 +29,7 @@ foreach($Country in $Countries){
         Method = "GET"
     }
 
-    ($RawMainPageData -match "$($Country)\-population")[0] -replace ",","" -match "[0-9]{6,}" | Out-Null
+    ($RawMainPageData -match "$($Country)\-population")[0] -replace ",","" -match "[0-9]{5,}" | Out-Null
     [int]$CountryPopulation = $Matches[0]
 
     $CountryData = Invoke-WebRequest @RequestHT
