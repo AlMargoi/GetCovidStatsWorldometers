@@ -7,6 +7,7 @@ $AllPossibleCountries = "USA", "India", "Brazil", "France", "Turkey", "Russia", 
 $RequestHT = @{
     Uri = "https://www.worldometers.info/coronavirus/"
     Method = "GET"
+    UseBasicParsing = $true
 }
 $MainPageData = Invoke-WebRequest @RequestHT
 $RawMainPageData = $MainPageData.RawContent -split "`n"
@@ -27,6 +28,7 @@ foreach($Country in $Countries){
     $RequestHT = @{
         Uri = "https://www.worldometers.info/coronavirus/country/$($Country)/"
         Method = "GET"
+        UseBasicParsing = $true
     }
 
     ($RawMainPageData -match "$($Country)\-population")[0] -replace ",","" -match "[0-9]{6,}" | Out-Null
