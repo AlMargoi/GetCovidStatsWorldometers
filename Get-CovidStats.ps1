@@ -18,29 +18,29 @@ foreach($Country in $Countries){
     $percentComplete = ($counter*100/($Countries.Count))
     $percentCompleteString = $percentComplete.ToString("##.#")
     Write-Progress -Activity "Getting data from worldometers - $percentCompleteString %" -PercentComplete $percentComplete
-    
+
     if(!$AllPossibleCountries.Contains($Country)){
         Write-Host "`"$Country`" is incorrect. It is not in the list of countires provided by Worldometers. Please check again." -ForegroundColor YELLOW
         continue
     }
-    
+
     $RequestHT = @{
         Uri = "https://www.worldometers.info/coronavirus/country/$($Country)/"
         Method = "GET"
     }
 
-    ($RawMainPageData -match "$($Country)\-population")[0] -replace ",","" -match "[0-9]{5,}" | Out-Null
-    [int]$CountryPopulation = $Matches[0]
+    ($RawMainPageData -match "$($Country)\-population")[0] -replace ",","" -match "[0-9]{6,}" | Out-Null
+    [double]$CountryPopulation = $Matches[0]
 
     $CountryData = Invoke-WebRequest @RequestHT
     $RawCountryData = $CountryData.RawContent -split "`n"
 
     $InterestIndex = $RawCountryData.IndexOf("            text: 'Daily New Cases'")
     $InterestDeathsIndex = $RawCountryData.IndexOf("            text: 'Daily Deaths'")
-    
+
     $DatesIndex = $InterestIndex + 8
     $DeathsDatesIndex = $InterestDeathsIndex + 8
-    
+
     $DailyCasesIndex = $InterestIndex + 48
     $DailyDeathsIndex = $InterestDeathsIndex + 49
 
@@ -53,35 +53,35 @@ foreach($Country in $Countries){
     ######################################
     $TotalLast14Days = 0
     foreach($Day in $DailyCases[-14..-1]){
-        $TotalLast14Days += [int]$Day
+        $TotalLast14Days += [double]$Day
     }
 
     $TotalLast7Days = 0
     foreach($Day in $DailyCases[-7..-1]){
-        $TotalLast7Days += [int]$Day
+        $TotalLast7Days += [double]$Day
     }
 
-    $TotalLast7DaysPer100K = [math]::Round(($TotalLast7Days * 100000 / $CountryPopulation), 0)
-    $TotalLast7DaysPer1M = [math]::Round(($TotalLast7Days * 1000000 / $CountryPopulation), 0)
-    $TotalLast14DaysPer100K = [math]::Round(($TotalLast14Days  * 100000 / $CountryPopulation), 0)
-    $TotalLast14DaysPer1M =  [math]::Round(($TotalLast14Days * 1000000 / $CountryPopulation), 0)
+    $TotalLast7DaysPer100K = [double]($TotalLast7Days * 100000 / $CountryPopulation).ToString("##.#")
+    $TotalLast7DaysPer1M = [double]($TotalLast7Days * 1000000 / $CountryPopulation).ToString("##.#")
+    $TotalLast14DaysPer100K = [double]($TotalLast14Days  * 100000 / $CountryPopulation).ToString("##.#")
+    $TotalLast14DaysPer1M =  [double]($TotalLast14Days * 1000000 / $CountryPopulation).ToString("##.#")
     #######################################
     # Calculate Daily Trends on New Deaths#
     #######################################
     $TotalLast14DaysDeaths = 0
     foreach($Day in $DailyDeaths[-14..-1]){
-        $TotalLast14DaysDeaths += [int]$Day
+        $TotalLast14DaysDeaths += [double]$Day
     }
 
     $TotalLast7DaysDeaths = 0
     foreach($Day in $DailyDeaths[-7..-1]){
-        $TotalLast7DaysDeaths += [int]$Day
+        $TotalLast7DaysDeaths += [double]$Day
     }
 
-    $DeathsLast7DaysPer100K = [math]::Round(($TotalLast7DaysDeaths * 100000 / $CountryPopulation), 0)
-    $DeathsLast7DaysPer1M = [math]::Round(($TotalLast7DaysDeaths * 1000000 / $CountryPopulation), 0)
-    $DeathsLast14DaysPer100K = [math]::Round(($TotalLast14DaysDeaths  * 100000 / $CountryPopulation), 0)
-    $DeathsLast14DaysPer1M =  [math]::Round(($TotalLast14DaysDeaths * 1000000 / $CountryPopulation), 0)
+    $DeathsLast7DaysPer100K = [double]($TotalLast7DaysDeaths * 100000 / $CountryPopulation).ToString("##.#")
+    $DeathsLast7DaysPer1M = [double]($TotalLast7DaysDeaths * 1000000 / $CountryPopulation).ToString("##.#")
+    $DeathsLast14DaysPer100K = [double]($TotalLast14DaysDeaths  * 100000 / $CountryPopulation).ToString("##.#")
+    $DeathsLast14DaysPer1M =  [double]($TotalLast14DaysDeaths * 1000000 / $CountryPopulation).ToString("##.#")
     #######################################
 
     $OutputHT = [ordered]@{
